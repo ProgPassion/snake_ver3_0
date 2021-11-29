@@ -1,0 +1,34 @@
+* {
+	margin:  0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+.field {
+	width: 500px;
+	height: 800px;
+	background: #436AE9;
+	margin: 20px auto;
+}
+
+.cell {
+	border: 1px solid #436AE9;
+	display: inline-block;
+	float: left;
+	visibility: hidden;
+}
+
+.snakeHead {
+	background: #DE5151;
+	visibility: visible;
+}
+
+.snakeBody {
+	background: #EEE;
+	visibility: visible;
+}
+
+.fruit {
+	background: #32CD32;
+	visibility: visible;
+}
