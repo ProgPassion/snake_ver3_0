@@ -14,6 +14,8 @@ let direction = "right";
 let movementCellX = 1;
 let movementCellY = 0;
 
+let gameOver = false;
+
 let fruitPos = generateFruitRandomLocation();
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -32,6 +34,17 @@ function iterateAllFieldCells(actionInsideIteration) {
 		}
 	}
 }
+
+function iterateSnakeBody(actionInsideIteration) {
+
+	if(bodyCoordinates.length > 1) {
+		for(let i = bodyCoordinates.length - 1; i >=1; i--) {
+			actionInsideIteration(i);
+		}
+	}
+}
+
+
 
 function buildField() {
 	iterateAllFieldCells(function(cellX, cellY) {
@@ -137,86 +150,66 @@ function updateSnakeHeadPos() {
 	
 }
 
-function updateSnakeBodyPos() {
+function updateSnakeBodyPos(index) {
 
-	if(bodyCoordinates.length > 1) {
+	if(bodyCoordinates[index].cellBackgroundClass === "snakeHead")
+		bodyCoordinates[index].cellBackgroundClass = "snakeBody";
 
-		for(let i = bodyCoordinates.length - 1; i >=1; i--) {
-			bodyCoordinates[i].cellX = bodyCoordinates[i-1].cellX;
-			bodyCoordinates[i].cellY = bodyCoordinates[i-1].cellY;
-		}
-	}
+	bodyCoordinates[index].cellX = bodyCoordinates[index-1].cellX;
+	bodyCoordinates[index].cellY = bodyCoordinates[index-1].cellY;
 }
 
 function checkIfSnakeAteFruit() {
 	
 	if(bodyCoordinates[0].cellX === fruitPos.posX && bodyCoordinates[0].cellY === fruitPos.posY) {
-		
-		if(direction == "right") {
-			if(fruitPos.posX == rightEdge) {
-				bodyCoordinates.unshift({cellX: leftEdge, cellY: fruitPosY, cellBackgroundClass: "snakeHead"});
-			}
-			else {
-				bodyCoordinates.unshift({cellX: fruitPos.posX + 1, cellY: fruitPos.posY, cellBackgroundClass: "snakeHead"});	
-			}
-		}
-		else if(direction == "left") {
-			if(fruitPos.posX == leftEdge) {
-				bodyCoordinates.unshift({cellX: rightEdge, cellY: fruitPos.posY, cellBackgroundClass: "snakeHead"});	
-			}
-			else {
-				bodyCoordinates.unshift({cellX: fruitPos.posX - 1, cellY: fruitPos.posY, cellBackgroundClass: "snakeHead"});
-			}
-		}	
-		else if(direction == "up") {
-			if(fruitPos.posY == topEdge) {
-				bodyCoordinates.unshift({cellX: fruitPos.posX, cellY: bottomEdge, cellBackgroundClass: "snakeHead"});	
-			}
-			else {
-				bodyCoordinates.unshift({cellX: fruitPos.posX, cellY: fruitPos.posY - 1, cellBackgroundClass: "snakeHead"});
-			}
-		}
-		else if(direction == "down") {
-			if(fruitPos.posY == bottomEdge) {
-				bodyCoordinates.unshift({cellX: fruitPos.posX, cellY: topEdge, cellBackgroundClass: "snakeHead"});	
-			}
-			else {
-				bodyCoordinates.unshift({cellX: fruitPos.posX, cellY: fruitPos.posY + 1, cellBackgroundClass: "snakeHead"});
-			}
-		}
-
-		bodyCoordinates[1].cellBackgroundClass = "snakeBody";
+		bodyCoordinates.push({cellX: fruitPos.posX, cellY: fruitPos.posY, cellBackgroundClass: "snakeHead"});
 		fruitPos = generateFruitRandomLocation();	
-		
 	}
+}
+
+function controllForGameOverEvent(index) {
+
+	if(bodyCoordinates[0].cellX === bodyCoordinates[index].cellX && bodyCoordinates[0].cellY === bodyCoordinates[index].cellY)
+		gameOver = true;
 }
 
 function keyDownHandle(event) {
 
 	if(event.keyCode == 87 && direction != "down") {
 		direction = "up";
+		document.removeEventListener('keydown', keyDownHandle);
 		updateSnakeDirection();
 	}
 	else if(event.keyCode == 83 && direction != "up") {
 		direction = "down";
+		document.removeEventListener('keydown', keyDownHandle);
 		updateSnakeDirection();
 	}
 	else if(event.keyCode == 65 && direction != "right") {
 		direction = "left";
+		document.removeEventListener('keydown', keyDownHandle);
 		updateSnakeDirection();
 	}
 	else if(event.keyCode == 68 && direction != "left") {
 		direction = "right";
+		document.removeEventListener('keydown', keyDownHandle);
 		updateSnakeDirection();
 	}
 }
 
-document.addEventListener('keydown', keyDownHandle, false);
-
 buildField();
-setInterval(function() {
-	updateSnakeBodyPos();
-	updateSnakeHeadPos();
-	checkIfSnakeAteFruit();
-	printGameElements();
-}, 250);
+let playGameCircle = setInterval(function() {
+
+	if(!gameOver) {
+		document.addEventListener('keydown', keyDownHandle, {once: true});
+		iterateSnakeBody(updateSnakeBodyPos);
+		updateSnakeHeadPos();
+		iterateSnakeBody(controllForGameOverEvent);
+		checkIfSnakeAteFruit();
+		printGameElements();	
+	}
+	else {
+		clearInterval(playGameCircle);
+		alert("Game Over!\n\nReload the page to play again...");
+	}
+}, 150);
