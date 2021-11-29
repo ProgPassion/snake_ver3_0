@@ -37,10 +37,8 @@ function iterateAllFieldCells(actionInsideIteration) {
 
 function iterateSnakeBody(actionInsideIteration) {
 
-	if(bodyCoordinates.length > 1) {
-		for(let i = bodyCoordinates.length - 1; i >=1; i--) {
-			actionInsideIteration(i);
-		}
+	for(let i = bodyCoordinates.length - 1; i >=1; i--) {
+		actionInsideIteration(i);
 	}
 }
 
