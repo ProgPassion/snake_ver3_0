@@ -127,6 +127,7 @@ class Fruit {
 	constructor() {
 		this.fruitPosX;
 		this.fruitPosY;
+		this.eatenFruitsCoordinate = [];
 	}
 	generateFruitRandomLocation(snakeBodyCoordinates, rightEdge, bottomEdge) {
 
@@ -149,6 +150,10 @@ class Fruit {
 			posY: this.fruitPosY,
 			cellBackgroundClass: "fruit",
 		};
+	}
+
+	pushEatenFruitsData(fruitPosX, fruitPosY) {
+		this.eatenFruitsCoordinate.push({posX: fruitPosX, posY: cellBackgroundClass: "snakeBody"});
 	}
 }
 
