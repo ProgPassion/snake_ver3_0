@@ -1,4 +1,3 @@
-
 class Cell {
 	constructor(cellSize) {
 		this.cellSize = cellSize;
@@ -32,8 +31,9 @@ class Snake {
 	constructor() {
 		this.bodyCoordinates = [{cellX: 4, cellY: 7, cellBackgroundClass: "snakeHead"}];
 		this.direction = "right";
-		this.movementCellX = 1;
-		this.movementCellY = 0;
+		this.movementCellX;
+		this.movementCellY;
+		this.updateSnakeDirection();
 	}
 
 
@@ -59,7 +59,9 @@ class Snake {
 		}
 	}
 
-	updateSnakeHeadPos(field) {
+	updateSnakePos(field) {
+
+		let tmpOneCellCoordinate = {cellX: this.bodyCoordinates[0].cellX, cellY: this.bodyCoordinates[0].cellY};
 
 		if(this.direction == "right") {
 			if(this.bodyCoordinates[0].cellX === field.rightEdge)
@@ -89,25 +91,33 @@ class Snake {
 				this.bodyCoordinates[0].cellY += this.movementCellY;	
 		}
 		
+
+		((tmpOneCellCoordinate) => {
+
+			let tmpTwoCellCoordinate = {};
+			for(let index = 1; index < this.bodyCoordinates.length; index++) {
+
+				tmpTwoCellCoordinate.cellX = this.bodyCoordinates[index].cellX;
+				tmpTwoCellCoordinate.cellY = this.bodyCoordinates[index].cellY;
+
+				this.bodyCoordinates[index].cellX = tmpOneCellCoordinate.cellX;
+				this.bodyCoordinates[index].cellY = tmpOneCellCoordinate.cellY;
+
+				tmpOneCellCoordinate.cellX = tmpTwoCellCoordinate.cellX;
+				tmpOneCellCoordinate.cellY = tmpTwoCellCoordinate.cellY;
+
+			}
+
+		})(tmpOneCellCoordinate);	
+
+
 	}
 
-
-	updateSnakeBodyPos() {
-
-		for(let index = this.bodyCoordinates.length - 1; index >= 1; index--) {
-			if(this.bodyCoordinates[index].cellBackgroundClass === "snakeHead")
-				this.bodyCoordinates[index].cellBackgroundClass = "snakeBody";
-
-			this.bodyCoordinates[index].cellX = this.bodyCoordinates[index-1].cellX;
-			this.bodyCoordinates[index].cellY = this.bodyCoordinates[index-1].cellY;	
-		}
-		
-	}
 
 	checkIfSnakeAteFruit(fruitPosX, fruitPosY) {
 
 		if(this.bodyCoordinates[0].cellX === fruitPosX && this.bodyCoordinates[0].cellY === fruitPosY) {
-			this.bodyCoordinates.push({cellX: fruitPosX, cellY: fruitPosY, cellBackgroundClass: "snakeHead"});
+			this.bodyCoordinates.push({cellX: fruitPosX, cellY: fruitPosY, cellBackgroundClass: "snakeBody"});
 			return true;	
 		}
 	}
@@ -202,8 +212,7 @@ let playGameCircle = setInterval(function() {
 	
 
 	document.addEventListener('keydown', keyDownHandle, {once: true});
-	snake.updateSnakeBodyPos();
-	snake.updateSnakeHeadPos(field);
+	snake.updateSnakePos(field);
 
 	if(snake.controllForGameOverEvent()){
 		clearInterval(playGameCircle);
