@@ -61,8 +61,9 @@ class Snake {
 
 	updateSnakePos(field) {
 
-		let tmpOneCellCoordinate = {cellX: this.bodyCoordinates[0].cellX, cellY: this.bodyCoordinates[0].cellY};
+		let tmpCellCoordinate = { ...this.bodyCoordinates[0], cellBackgroundClass: "snakeBody"};
 
+		// Update the first snakeBodyCell which is the snake head
 		if(this.direction == "right") {
 			if(this.bodyCoordinates[0].cellX === field.rightEdge)
 				this.bodyCoordinates[0].cellX = field.leftEdge; 
@@ -92,24 +93,16 @@ class Snake {
 		}
 		
 
-		((tmpOneCellCoordinate) => {
+		const updateSnakeBodyCells = (tmpCellCoordinate) => {
 
-			let tmpTwoCellCoordinate = {};
 			for(let index = 1; index < this.bodyCoordinates.length; index++) {
-
-				tmpTwoCellCoordinate.cellX = this.bodyCoordinates[index].cellX;
-				tmpTwoCellCoordinate.cellY = this.bodyCoordinates[index].cellY;
-
-				this.bodyCoordinates[index].cellX = tmpOneCellCoordinate.cellX;
-				this.bodyCoordinates[index].cellY = tmpOneCellCoordinate.cellY;
-
-				tmpOneCellCoordinate.cellX = tmpTwoCellCoordinate.cellX;
-				tmpOneCellCoordinate.cellY = tmpTwoCellCoordinate.cellY;
-
+				// swap values
+				[tmpCellCoordinate, this.bodyCoordinates[index]] = [this.bodyCoordinates[index], tmpCellCoordinate]; 
 			}
 
-		})(tmpOneCellCoordinate);	
+		};
 
+		updateSnakeBodyCells(tmpCellCoordinate);
 
 	}
 
@@ -124,7 +117,7 @@ class Snake {
 
 	controllForGameOverEvent() {
 
-		for(let index = this.bodyCoordinates.length - 1; index >= 1; index--) {
+		for(let index = 1; index < this.bodyCoordinates.length; index++) {
 			if(this.bodyCoordinates[0].cellX === this.bodyCoordinates[index].cellX && 
 				this.bodyCoordinates[0].cellY === this.bodyCoordinates[index].cellY)
 				return true;
